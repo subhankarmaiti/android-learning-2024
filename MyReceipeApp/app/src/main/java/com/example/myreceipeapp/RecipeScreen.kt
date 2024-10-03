@@ -2,6 +2,7 @@ package com.example.myreceipeapp
 
 import android.media.Image
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -25,9 +26,8 @@ import coil.compose.rememberAsyncImagePainter
 
 
 @Composable
-fun RecipeScreen(modifier: Modifier=Modifier) {
+fun RecipeScreen(modifier: Modifier=Modifier, viewState: MainViewModal.RecipeState, navigateToDetail: (Category) -> Unit) {
     val recipeViewModal: MainViewModal = viewModel()
-    val viewState by recipeViewModal.categoriesState
     Box(modifier = Modifier.fillMaxSize()) {
         when {
             viewState.loading ->{
@@ -39,7 +39,7 @@ fun RecipeScreen(modifier: Modifier=Modifier) {
             }
             else ->{
                 // Display Categories
-                CategoryScreen(categories = viewState.list)
+                CategoryScreen(categories = viewState.list, navigateToDetail)
             }
         }
     }
@@ -47,18 +47,20 @@ fun RecipeScreen(modifier: Modifier=Modifier) {
 
 
 @Composable
-fun CategoryScreen(categories: List<Category>) {
+fun CategoryScreen(categories: List<Category>, navigateToDetail: (Category) -> Unit) {
     LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.fillMaxSize()) {
         items(categories) {
-            category -> CategoryItem(category)
+            category -> CategoryItem(category, navigateToDetail)
         }
     }
 }
 
 // How Each item looks like
 @Composable
-fun CategoryItem(category: Category) {
-    Column(modifier = Modifier.padding(8.dp).fillMaxSize(),
+fun CategoryItem(category: Category, navigateToDetail: (Category) -> Unit) {
+    Column(modifier = Modifier.padding(8.dp).fillMaxSize().clickable {
+        navigateToDetail(category)
+    },
         horizontalAlignment = Alignment.CenterHorizontally) {
         Image(
             painter = rememberAsyncImagePainter(category.strCategoryThumb),
